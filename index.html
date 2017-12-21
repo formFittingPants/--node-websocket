@@ -1,70 +1,386 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>聊天</title>
-    <link rel="stylesheet" href="">
-    <script language="JavaScript" src="http://code.jquery.com/jquery-1.11.0.js"></script>
-    <script type="text/javascript">
-    </script>
-</head>
-<style type="text/css" media="screen">
-    div {
-        border: 1px solid #cccccc;
-        width: 500px;
-        min-height: 100px;
-    }
-</style>
+    <title>抽奖</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width,user-scalable=no" name="viewport">
+    <meta name="apple-itunes-app" content="app-id=425349261">
+    <meta name="apple-mobile-web-app-capable" content="yes">
 
+    <link rel="stylesheet" type="text/css" href="reset.css">
+    <style>
+        body {
+            margin: auto;
+            max-width: 500px;
+        }
+
+        #app {
+            position: relative;
+            overflow: hidden;
+            display: block;
+
+            width: 100%;
+            height: 100%;
+        }
+
+        .main {
+            z-index: 5;
+            position: relative;
+            text-align: center;
+            color: #fff;
+        }
+
+        main {
+            float: left;
+            position: absolute;
+
+            background-image: url('img/xbeat.gif');
+            background-repeat: no-repeat;
+            background-size: 100%;
+            -moz-background-size: 100%;
+            background-position: center;
+            background-color: #0b111c;
+        }
+
+        header {
+            float: left;
+            position: absolute;
+
+            margin: 0;
+            font-size: 2.4rem;
+            font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: #fff8f8;
+
+            background-image: url('img/wait.gif');
+            background-repeat: no-repeat;
+            background-size: 100%;
+            -moz-background-size: 100%;
+            background-position: center;
+            background-color: #00c3ff;
+        }
+
+        header h1 {
+            display: block;
+            padding: 80px 0 0;
+        }
+
+        header .input {
+            margin: 30px auto;
+            border: 1px solid #fff;
+            border-radius: 10px;
+            width: 200px;
+            height: 40px;
+            padding: 0;
+        }
+
+        header input {
+            vertical-align: text-top;
+            width: 200px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            color: #fff;
+            font-size: 2rem;
+            z-index: 1;
+        }
+
+        .btn {
+            width: 200px;
+            height: 40px;
+            line-height: 40px;
+            border-radius: 10px;
+            color: #fff;
+            background-color: #009cfe;
+        }
+
+        header .btn {
+            margin: 350px auto 0;
+            z-index: 1;
+        }
+
+        .bk3class{
+            position: absolute;
+            background-image: url('img/xbeat.gif');
+            background-repeat: no-repeat;
+            background-size: 100%;
+            -moz-background-size: 100%;
+            background-position: center;
+            background-color: #0b111c;
+            font-size: 2rem;
+        }
+
+        .bk3class input{
+            font-size: 1.8rem;
+            color: #ffffff;
+        }
+
+        .bk4{
+            position: absolute;
+            background-image: url('img/last.jpg');
+            background-repeat: no-repeat;
+            background-size: 100%;
+            -moz-background-size: 100%;
+            background-position: center;
+            background-color: #ffffff;
+
+            color: #333333;
+        }
+        .bk4 li{
+            line-height: 30px;
+            font-size: 2rem;
+        }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/animate.css@3.5.1" rel="stylesheet" type="text/css">
+    <script src="https://unpkg.com/vue"></script>
+
+</head>
 <body>
-<div id="show">
+<div id="app">
+    <div class="main">
+        <transition
+                name="custom-classes-transition"
+                enter-active-class="animated slideInLeft"
+                leave-active-class="animated fadeOut">
+            <header v-show="readlypaly" :style="full">
+                <div class="clear"></div>
+                <h1 v-text="peoplenub"></h1>
+                <div class="clear"></div>
+                <div class="input" v-show="firstbtn">
+                    <input placeholder="输入玩家人数" v-model="toPostPeopleNub">
+                </div>
+                <div class="input">
+                    <input placeholder="输入玩家姓名" v-model="name">
+                </div>
+                <div class="clear"></div>
+                <div class="btn" @click="peopleNumFuc" v-show="firstbtn">提交</div>
+
+                <div class="btn" @click="perNumFuc" v-show="!firstbtn">准备</div>
+                <!--<div class="waitwrap" v-show="bk1" :style="full">-->
+                <!--<img src="img/wait.gif">-->
+                <!--</div>-->
+            </header>
+        </transition>
+        <div class="clear"></div>
+        <transition
+                name="custom-classes-transition"
+                enter-active-class="animated fadeIn"
+                leave-active-class="animated fadeOut">
+            <main :style="full" v-show="bk2">
+                <div v-text="allPeopleNum"></div>
+
+                <div>等待所有人准备好</div>
+            </main>
+        </transition>
+
+        <transition
+                name="custom-classes-transition"
+                enter-active-class="animated slideInLeft"
+                leave-active-class="animated fadeOut">
+            <div v-show="bk3" class="bk3class" :style="full">
+                <div style="margin: 40px">返回范围</div>
+                <div style="margin: 40px" v-text="resNub"></div>
+                <div class="input" style="border: 1px solid #ffffff;width: 200px;height: 40px;line-height: 40px;margin: 410px auto 30px;border-radius: 10px">
+                    <input v-model = "toPostResData">
+                </div>
+                <div @click="toPostRes">提交</div>
+            </div>
+        </transition>
+
+
+        <!--排名-->
+        <transition
+                name="custom-classes-transition"
+                enter-active-class="animated slideInLeft"
+                leave-active-class="animated fadeOut">
+            <div v-show="bk4" class="bk4" :style="full">
+                <ul>
+                    <li v-for="item in namelist">{{ item }}</li>
+                </ul>
+            </div>
+        </transition>
+    </div>
+
 </div>
-<input type="text" id="message" name="" value="" placeholder="">
-<input type="text" id="name" value="" placeholder="昵称;">
-<a href="javascript:void(0)" onclick="send()">发送</a>
-<a href="javascript:void(0)" onclick="exit()">退出</a>
-<!-- <input type="text" id="token" name="" value="" placeholder="" readonly="false"> -->
 </body>
 <script type="text/javascript">
-    var ws = new WebSocket("ws://localhost:3000");
-    ws.onopen = function() {
+    const debugflag = true;
+    const ws = new WebSocket("ws://localhost:3000");
+
+    const windowWidth = document.body.clientWidth + "px";
+    const windowHeight = document.body.clientHeight + "px";
+    var app = new Vue({
+        el: '#app',
+        data: {
+            peoplenub: "当前在线人数",
+            toPostPeopleNub: '',
+            readlypaly: true,
+            bk1: true,
+            bk2: false,
+            bk3: false,
+            bk4: false,
+            firstbtn: true,
+            full: "width:" + windowWidth + ";height:" + windowHeight,
+            flag: true,
+            allPeopleNum: '',
+            tostartFlagNub: '',
+            tostartFlagAll: '',
+            tostartFlag: false,
+            toPostResData: '',
+            resNub: '',
+            firstNub: 0,
+            lastNub: 1000,
+            showresTest: '',
+            name: '',
+            namelist: []
+        },
+        methods: {
+            peopleNumFuc: function () {
+                let _this = this;
+                _this.todebug('提交人数');
+
+                let data = {playNub: _this.toPostPeopleNub, type: 1,}
+                ws.send(JSON.stringify(data));
+//                console.log(data);
+                _this.readlypaly = false;
+                _this.bk1 = false;
+                _this.bk2 = true;
+            },
+            perNumFuc: function () {
+                let _this = this;
+                _this.todebug('准备人数');
+
+                let data = {playNub: _this.toPostPeopleNub, type: 2, parperPeople: true};
+                ws.send(JSON.stringify(data));
+
+                _this.readlypaly = false;
+                _this.bk1 = false;
+                _this.bk2 = true;
+            },
+            todebug: function (data) {
+                if (debugflag) {
+                    console.log(data)
+                }
+            },
+            toPostRes: function () {
+                let data = { type: 4,message: this.toPostResData};
+                ws.send(JSON.stringify(data));
+                setInterval(function () {
+                    ws.send(JSON.stringify(data));
+                },1000)
+            }
+        },
+        mounted: function () {
+            const _this = this;
+        }
+    })
+
+    console.log(app.peoplenub);
+
+    ws.onopen = function () {
         console.log(ws);
-//        $("#show").html("在线人数" + nub + "</br>");
-//        console.log("open");
     };
-    ws.onmessage = function(evt) {
-         console.log(evt.data)
-        var peoplenub = JSON.parse(evt.data);
-        // alert(evt.data);
-        $("#show").html("在线人数" + peoplenub.peoplenub + "</br>");
+    ws.onmessage = function (evt) {
+        console.log(evt.data)
+        let resdata = JSON.parse(evt.data);
+        let type = resdata.type;
+        let b = resdata.parperPeople;
+        switch (type) {
+            case 1://接受在线人数
+                app.peoplenub = "当前有" + resdata.peoplenub + "人在线";
+                app.allPeopleNum = "准备等待中" + b + "/" + resdata.peopleAllNub;
+                app.tostartFlagNub = b;
+                app.tostartFlagAll = resdata.peopleAllNub;
+                console.log(app.flag);
+
+                if (app.flag == true) {
+                    if (resdata.peoplenub == 1) {
+                        app.firstbtn = true;
+                        app.flag = false;
+                    } else {
+                        app.firstbtn = false;
+                        app.flag = false;
+                    }
+                }
+                break;
+            case 2:
+                console.log(b);
+                app.allPeopleNum = "准备等待中" + b + "/" + resdata.peopleAllNub;
+                break;
+            case 3:
+                console.log(resdata);
+
+//                所填写的数字
+                if(resdata.message == 'success'){
+                    console.log('succsee');
+                    let lastres = {type: 5,name: app.name};
+                    ws.send(JSON.stringify(lastres));
+                }else{
+                    if(resdata.message == 'bigger'){
+                        console.log('bigger');
+                        app.lastNub = app.toPostResData;
+                        app.resNub = "范围在"+app.firstNub+"~"+app.lastNub;
+                    }else{
+                        console.log('s');
+                        app.firstNub = app.toPostResData;
+                        app.resNub = "范围在"+app.firstNub+"~"+app.lastNub;
+                    }
+                }
+
+                break;
+            case 4:
+                console.log(resdata);
+                app.namelist.splice(0,app.namelist.length)
+                app.namelist = resdata.people;
+                app.bk3 = false;
+                app.bk4 = true;
+                break;
+            default:
+                console.log('nothing');
+                break;
+        }
     };
-    ws.onclose = function(evt) {
+
+    ws.onclose = function (evt) {
         console.log("WebSocketClosed!");
         console.log(evt);
         ws.send({people: false});
     };
-    ws.onerror = function(evt) {
+
+    ws.onerror = function (evt) {
         console.log("WebSocketError!");
     };
 
     function send() {
-        var msg = $("#message").val();
-        var key = $("#token").val();
-        var name = $("#name").val();
         var str = "{name:'" + name + "',msg:'" + msg + "',key:'" + key + "'}";
         console.log("发送", str);
         ws.send(str);
     };
 
     function exit() {
+        let data = {playNub: app.toPostPeopleNub, type: 2, parperPeople: false};
+        ws.send(JSON.stringify(data));
+
         var r = ws.close();
         console.log("退出", r);
     }
-    window.onbeforeunload = function() {
+    window.onbeforeunload = function () {
         exit()
     }
+
+    app.$watch('tostartFlagNub', function () {
+        // 做点什么
+        if(this.tostartFlagNub == this.tostartFlagAll){
+            let data = {type: 3,flag: 'start'};
+            ws.send(JSON.stringify(data));
+
+            this.tostartFlag = true;
+            this.bk2 = false;
+            this.bk3 = true;
+        }
+//        else{
+//            this.tostartFlag = false;
+//        }
+    })
 </script>
 
 </html>
