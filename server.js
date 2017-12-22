@@ -3,7 +3,7 @@ const WebSocket = require('ws');
 const WebSocketServer = WebSocket.Server;
 
 const wss = new WebSocketServer({
-    port: 3000
+    port: 8080
 });
 
 let peoplearr = [];
@@ -33,6 +33,7 @@ wss.on('connection', function (ws,req) {
     });
 
     setInterval(function () {
+
         ws.send(reqdatafuc(1,people,'',playPeopleAll,parperPeople), (err) => {
             if (err) {
                 // error 错误
@@ -150,11 +151,11 @@ wss.on('connection', function (ws,req) {
 
             if(people <= 0){
                 people = 0;
-                playPeopleAll;
+                playPeopleAll = 0;
                 parperPeople = 1;
 
                 changeFlag = true;
-                changeNub;
+                changeNub = 0;
                 peoplearr.splice(0,peoplearr.length)
             }
 

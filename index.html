@@ -42,6 +42,12 @@
             background-color: #0b111c;
         }
 
+        main div{
+            margin: 20px;
+            line-height: 30px;
+            font-size: 1.4rem;
+        }
+
         header {
             float: left;
             position: absolute;
@@ -94,8 +100,31 @@
         }
 
         header .btn {
-            margin: 350px auto 0;
-            z-index: 1;
+            position: absolute;
+            bottom: 20%;
+            left:50%;
+            z-index: 100;
+            -webkit-transform: translateX(-50%);
+            -moz-transform: translateX(-50%);
+            -ms-transform: translateX(-50%);
+            -o-transform: translateX(-50%);
+            transform: translateX(-50%);
+        }
+
+        .btnfirst{
+            position: absolute;
+            bottom: 10%;
+            left:50%;
+            z-index: 100;
+            -webkit-transform: translateX(-50%);
+            -moz-transform: translateX(-50%);
+            -ms-transform: translateX(-50%);
+            -o-transform: translateX(-50%);
+            transform: translateX(-50%);
+        }
+
+        header input{
+            color: #000;
         }
 
         .bk3class{
@@ -114,6 +143,30 @@
             color: #ffffff;
         }
 
+        .bk3class .input{
+            position: absolute;
+            bottom: 5%;
+            left:50%;
+            z-index: 100;
+            -webkit-transform: translateX(-50%);
+            -moz-transform: translateX(-50%);
+            -ms-transform: translateX(-50%);
+            -o-transform: translateX(-50%);
+            transform: translateX(-50%);
+        }
+
+        .bk3class .input1{
+            position: absolute;
+            bottom: 20%;
+            left:50%;
+            z-index: 100;
+            -webkit-transform: translateX(-50%);
+            -moz-transform: translateX(-50%);
+            -ms-transform: translateX(-50%);
+            -o-transform: translateX(-50%);
+            transform: translateX(-50%);
+        }
+
         .bk4{
             position: absolute;
             background-image: url('img/last.jpg');
@@ -123,12 +176,29 @@
             background-position: center;
             background-color: #ffffff;
 
-            color: #333333;
+            color: #000000;
         }
         .bk4 li{
             line-height: 30px;
             font-size: 2rem;
         }
+
+        :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+            color: #000; opacity:1;
+        }
+
+        ::-moz-placeholder { /* Mozilla Firefox 19+ */
+            color: #000;opacity:1;
+        }
+
+        input:-ms-input-placeholder{
+            color: #000;opacity:1;
+        }
+
+        input::-webkit-input-placeholder{
+            color: #000;opacity:1;
+        }
+
     </style>
     <link href="https://cdn.jsdelivr.net/npm/animate.css@3.5.1" rel="stylesheet" type="text/css">
     <script src="https://unpkg.com/vue"></script>
@@ -146,7 +216,7 @@
                 <h1 v-text="peoplenub"></h1>
                 <div class="clear"></div>
                 <div class="input" v-show="firstbtn">
-                    <input placeholder="输入玩家人数" v-model="toPostPeopleNub">
+                    <input  type="number" placeholder="输入玩家人数" v-model="toPostPeopleNub">
                 </div>
                 <div class="input">
                     <input placeholder="输入玩家姓名" v-model="name">
@@ -154,7 +224,7 @@
                 <div class="clear"></div>
                 <div class="btn" @click="peopleNumFuc" v-show="firstbtn">提交</div>
 
-                <div class="btn" @click="perNumFuc" v-show="!firstbtn">准备</div>
+                <div class="btn btnfirst" @click="perNumFuc" v-show="secbtn">准备</div>
                 <!--<div class="waitwrap" v-show="bk1" :style="full">-->
                 <!--<img src="img/wait.gif">-->
                 <!--</div>-->
@@ -179,10 +249,10 @@
             <div v-show="bk3" class="bk3class" :style="full">
                 <div style="margin: 40px">返回范围</div>
                 <div style="margin: 40px" v-text="resNub"></div>
-                <div class="input" style="border: 1px solid #ffffff;width: 200px;height: 40px;line-height: 40px;margin: 410px auto 30px;border-radius: 10px">
-                    <input v-model = "toPostResData">
+                <div class="input" style="border: 1px solid #ffffff;width: 200px;height: 40px;line-height: 40px;border-radius: 10px">
+                    <input v-model = "toPostResData" type="number">
                 </div>
-                <div @click="toPostRes">提交</div>
+                <div @click="toPostRes" class="input1">提交</div>
             </div>
         </transition>
 
@@ -204,10 +274,17 @@
 </body>
 <script type="text/javascript">
     const debugflag = true;
-    const ws = new WebSocket("ws://localhost:3000");
+    const ws = new WebSocket("ws://localhost:8080");
 
     const windowWidth = document.body.clientWidth + "px";
     const windowHeight = document.body.clientHeight + "px";
+
+    function todebug(data) {
+        if (debugflag) {
+            console.log(data)
+        }
+    }
+
     var app = new Vue({
         el: '#app',
         data: {
@@ -219,11 +296,12 @@
             bk3: false,
             bk4: false,
             firstbtn: true,
+            secbtn: false,
             full: "width:" + windowWidth + ";height:" + windowHeight,
             flag: true,
             allPeopleNum: '',
-            tostartFlagNub: '',
-            tostartFlagAll: '',
+            tostartFlagNub: 'b',
+            tostartFlagAll: 'a',
             tostartFlag: false,
             toPostResData: '',
             resNub: '',
@@ -231,42 +309,58 @@
             lastNub: 1000,
             showresTest: '',
             name: '',
-            namelist: []
+            namelist: [],
+            zhunbeiflag: true,
+            toPostPeopleNubflag: ''
         },
         methods: {
             peopleNumFuc: function () {
                 let _this = this;
-                _this.todebug('提交人数');
+                todebug('提交人数');
 
+                let testinput = /^\d+$/.test(_this.toPostPeopleNub)
+                if(!testinput){
+                    alert('请输入正确的数字');
+                    return
+                }
+
+                if(!_this.name){
+                    alert('请输入昵称');
+                    return
+                }
                 let data = {playNub: _this.toPostPeopleNub, type: 1,}
                 ws.send(JSON.stringify(data));
-//                console.log(data);
+//                todebug(data);
                 _this.readlypaly = false;
                 _this.bk1 = false;
                 _this.bk2 = true;
             },
             perNumFuc: function () {
                 let _this = this;
-                _this.todebug('准备人数');
+                todebug('准备人数');
 
-                let data = {playNub: _this.toPostPeopleNub, type: 2, parperPeople: true};
-                ws.send(JSON.stringify(data));
-
-                _this.readlypaly = false;
-                _this.bk1 = false;
-                _this.bk2 = true;
-            },
-            todebug: function (data) {
-                if (debugflag) {
-                    console.log(data)
+                if(!_this.name){
+                    alert('请输入昵称！');
+                    return
                 }
+
+                if(!!_this.toPostPeopleNubflag){
+                    let data = {playNub: _this.toPostPeopleNub, type: 2, parperPeople: true};
+                    ws.send(JSON.stringify(data));
+                    _this.zhunbeiflag = false;
+                    _this.readlypaly = false;
+                    _this.bk1 = false;
+                    _this.bk2 = true;
+                }else{
+                    alert('请等待第一用户设置人数')
+                    return;
+                }
+
             },
+
             toPostRes: function () {
                 let data = { type: 4,message: this.toPostResData};
                 ws.send(JSON.stringify(data));
-                setInterval(function () {
-                    ws.send(JSON.stringify(data));
-                },1000)
             }
         },
         mounted: function () {
@@ -274,94 +368,117 @@
         }
     })
 
-    console.log(app.peoplenub);
+    todebug(app.peoplenub);
 
     ws.onopen = function () {
-        console.log(ws);
+        todebug(ws);
     };
     ws.onmessage = function (evt) {
-        console.log(evt.data)
+        todebug(evt.data)
         let resdata = JSON.parse(evt.data);
         let type = resdata.type;
         let b = resdata.parperPeople;
         switch (type) {
             case 1://接受在线人数
+                todebug(resdata.peopleAllNub);
+
+                if(!!resdata.peopleAllNub){
+                    app.toPostPeopleNubflag = resdata.peopleAllNub
+                }
+
                 app.peoplenub = "当前有" + resdata.peoplenub + "人在线";
                 app.allPeopleNum = "准备等待中" + b + "/" + resdata.peopleAllNub;
                 app.tostartFlagNub = b;
                 app.tostartFlagAll = resdata.peopleAllNub;
-                console.log(app.flag);
+                todebug(app.flag);
 
                 if (app.flag == true) {
                     if (resdata.peoplenub == 1) {
                         app.firstbtn = true;
+                        app.secbtn = false;
                         app.flag = false;
                     } else {
                         app.firstbtn = false;
+                        app.secbtn = true;
+                        app.flag = false;
+                    }
+                }else{
+                    if (resdata.peoplenub == 1) {
+                        app.firstbtn = true;
+                        app.secbtn = false;
                         app.flag = false;
                     }
                 }
                 break;
             case 2:
-                console.log(b);
+                todebug(b);
                 app.allPeopleNum = "准备等待中" + b + "/" + resdata.peopleAllNub;
                 break;
             case 3:
-                console.log(resdata);
+                todebug(resdata);
 
 //                所填写的数字
                 if(resdata.message == 'success'){
-                    console.log('succsee');
+                    todebug('succsee');
                     let lastres = {type: 5,name: app.name};
                     ws.send(JSON.stringify(lastres));
+
+                    let data = { type: 4,message: app.toPostResData};
+                    let timefuc = setTimeout(function () {
+                        ws.send(JSON.stringify(data));
+                        clearTimeout(timefuc)
+                    },1000);
                 }else{
                     if(resdata.message == 'bigger'){
-                        console.log('bigger');
+                        todebug('bigger');
                         app.lastNub = app.toPostResData;
                         app.resNub = "范围在"+app.firstNub+"~"+app.lastNub;
                     }else{
-                        console.log('s');
+                        todebug('s');
                         app.firstNub = app.toPostResData;
                         app.resNub = "范围在"+app.firstNub+"~"+app.lastNub;
                     }
+                    app.toPostResData = '';
                 }
 
                 break;
             case 4:
-                console.log(resdata);
+                todebug(resdata);
                 app.namelist.splice(0,app.namelist.length)
                 app.namelist = resdata.people;
                 app.bk3 = false;
                 app.bk4 = true;
                 break;
             default:
-                console.log('nothing');
+                todebug('nothing');
                 break;
         }
     };
 
     ws.onclose = function (evt) {
-        console.log("WebSocketClosed!");
-        console.log(evt);
+        todebug("WebSocketClosed!");
+        todebug(evt);
         ws.send({people: false});
     };
 
     ws.onerror = function (evt) {
-        console.log("WebSocketError!");
+        todebug("WebSocketError!");
     };
 
     function send() {
         var str = "{name:'" + name + "',msg:'" + msg + "',key:'" + key + "'}";
-        console.log("发送", str);
+        todebug("发送", str);
         ws.send(str);
     };
 
     function exit() {
-        let data = {playNub: app.toPostPeopleNub, type: 2, parperPeople: false};
-        ws.send(JSON.stringify(data));
+        if(!app.zhunbeiflag){
+            let data = {playNub: app.toPostPeopleNub, type: 2, parperPeople: false};
+            ws.send(JSON.stringify(data));
+        }
 
         var r = ws.close();
-        console.log("退出", r);
+        todebug("退出", r);
     }
     window.onbeforeunload = function () {
         exit()
@@ -369,17 +486,34 @@
 
     app.$watch('tostartFlagNub', function () {
         // 做点什么
-        if(this.tostartFlagNub == this.tostartFlagAll){
+        if(this.tostartFlagNub == this.tostartFlagAll || this.tostartFlagAll ==1){
             let data = {type: 3,flag: 'start'};
             ws.send(JSON.stringify(data));
 
             this.tostartFlag = true;
             this.bk2 = false;
-            this.bk3 = true;
+
+            if(!!this.name){
+                this.bk3 = true;
+            }
         }
+//        if(this.tostartFlagNub > this.tostartFlagAll){
+//            alert('当前人数过多，请等待')
+////            this.bk2 = false;
+////
+////            if(!!this.name){
+////                this.bk3 = true;
+////            };
+//            return ;
+//        }
 //        else{
 //            this.tostartFlag = false;
 //        }
+    })
+
+    app.$watch('bk3', function () {
+        // 做点什么
+        this.secbtn = false;
     })
 </script>
 
